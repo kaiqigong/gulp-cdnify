@@ -18,5 +18,9 @@
   "bugs": {
     "url": "https://github.com/kaiqigong/gulp-cdnify/issues"
   },
-  "homepage": "https://github.com/kaiqigong/gulp-cdnify"
+  "homepage": "https://github.com/kaiqigong/gulp-cdnify",
+  "dependencies": {
+    "gulp-util": "^3.0.3",
+    "through2": "^0.6.3"
+  }
 }

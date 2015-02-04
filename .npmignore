@@ -1,0 +1,11 @@
+.DS_Store
+*.log
+node_modules/
+*.node
+temp/
+test
+.bowerrc
+.travis.yml
+.gitattributes
+.editorconfig
+.jshintrc
