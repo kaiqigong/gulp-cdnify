@@ -31,12 +31,52 @@ function joinBaseAndPath(base, urlPath) {
   return protocol + '//' + path.normalize("" + rest + "/" + urlPath);
 }
 
+// Default options
+var defaults = {
+  html: true,
+  css: true
+};
+
+var htmlDefaults = {
+  'img[src]': 'src',
+  'link[rel=stylesheet]': 'href',
+  'script[src]': 'src',
+  'video[poster]': 'poster',
+  'source[src]': 'src'
+};
+
+function extend(target, source) {
+  target = target || {};
+  for (var prop in source) {
+    if (typeof source[prop] === 'object') {
+      target[prop] = extend(target[prop], source[prop]);
+    } else {
+      target[prop] = source[prop];
+    }
+  }
+  return target;
+}
+
 // Plugin level function(dealing with files)
 function gulpCdnify(options) {
 
   if (!options) {
     throw new PluginError(PLUGIN_NAME, 'Missing options');
   }
+
+  options = extend(options, defaults);
+
+  // Handle HTML selector:attribute settings
+  if (options.html === false) options.html = {};
+  else if (options.html === true) options.html = htmlDefaults;
+  else if (typeof options.html === 'object') {
+    for (var key in htmlDefaults) {
+      if (htmlDefaults.hasOwnProperty(key) && options.html[key] == null) {
+        options.html[key] = htmlDefaults[key];
+      }
+    }
+  }
+
   // Establish the rewriteURL function for this task
   var rewriteURL;
   if (typeof options.base === 'string') {
@@ -54,21 +94,44 @@ function gulpCdnify(options) {
     rewriteURL = options.rewriter;
   }
 
-  gutil.log(options)
-
   // Creating a stream through which each file will pass
   return through.obj(function(file, enc, cb) {
-    var prefixText = new Buffer('kaiqi')
-    gutil.log(file)
+
+    var srcFile = file.path
     if (file.isNull()) {
       // return empty file
       cb(null, file);
     }
     if (file.isBuffer()) {
-      gutil.log('isBuffer')
+      if (/\.css$/.test(srcFile)) {
+        // It's a CSS file.
+        var oldCSS = String(file.contents),
+            newCSS = rewriteCSSURLs(oldCSS, rewriteURL)
+        file.contents = new Buffer(newCSS);
+        gutil.log("Changed CSS file: \"" + srcFile + "\"");
+      }
+      else {
+        // It's an HTML file.
+        var oldHTML = String(file.contents),
+            soup = new Soup(oldHTML);
+
+        for (var search in options.html) {
+          var attr = options.html[search];
+          if (attr) soup.setAttribute(search, options.html[search], rewriteURL);
+        }
+
+        // Update the URLs in any embedded stylesheets
+        soup.setInnerHTML('style', function (css) {
+          return rewriteCSSURLs(css, rewriteURL);
+        });
+
+        // Write it to disk
+        file.contents = new Buffer(soup.toString())
+        gutil.log("Changed HTML file: \"" + srcFile + "\"");
+      }
     }
     if (file.isStream()) {
-      gutil.log('isStream')
+      throw new PluginError(PLUGIN_NAME, 'Stream not supported');
     }
     cb(null, file);
   });
