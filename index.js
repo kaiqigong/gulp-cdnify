@@ -81,8 +81,9 @@ function gulpCdnify(options) {
   var rewriteURL;
   if (typeof options.base === 'string') {
     rewriteURL = function (url) {
-      if (isLocalPath(url))
+      if (isLocalPath(url)) {
         return joinBaseAndPath(options.base, url);
+      }
       return url;
     };
   }
