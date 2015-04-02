@@ -79,20 +79,18 @@ function gulpCdnify(options) {
 
   // Establish the rewriteURL function for this task
   var rewriteURL;
-  if (typeof options.base === 'string') {
-    rewriteURL = function (url) {
-      if (isLocalPath(url)) {
-        return joinBaseAndPath(options.base, url);
-      }
-      return url;
-    };
-  }
-  else if (typeof options.rewriter !== 'function') {
-    grunt.fatal('Please specify either a "base" string or a "rewriter" function in the task options.');
-    return;
+  var defaultRewrite = function (url) {
+    if (isLocalPath(url))
+      return joinBaseAndPath(options.base, url);
+    return url;
+  };
+  if (typeof options.rewriter !== 'function') {
+    rewriteURL = defaultRewrite;
   }
   else {
-    rewriteURL = options.rewriter;
+    rewriteURL = function (url) {
+      return options.rewriter(url, defaultRewrite);
+    }
   }
 
   // Creating a stream through which each file will pass
