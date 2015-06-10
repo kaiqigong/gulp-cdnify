@@ -19,6 +19,7 @@ npm install gulp-cdnify --save-dev
     });
 
 ### For those who want to rewrite the url with their own specific rules.
+```
 pipe($.cdnify({
   rewriter: function(url, process) {
     if (/eot]ttf|woff|woff2/.test(url)) {
@@ -30,3 +31,4 @@ pipe($.cdnify({
     }
   }
 }));
+```
