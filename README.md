@@ -17,3 +17,16 @@ npm install gulp-cdnify --save-dev
         }))
         .pipe(gulp.dest('dist/'))
     });
+
+### For those who want to rewrite the url with their own specific rules.
+pipe($.cdnify({
+  rewriter: function(url, process) {
+    if (/eot]ttf|woff|woff2/.test(url)) {
+      return 'http://myfontcdn.com/' + url;
+    } else if (/(png|jpg|gif)$/.test(url)) {
+      return 'http://myimagecdn.com/' + url;
+    } else {
+      return process(url);
+    }
+  }
+}));
