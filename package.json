@@ -6,6 +6,9 @@
   "scripts": {
     "test": "gulp test"
   },
+  "publishConfig": {
+    "registry": "http://vl-aus-bsm-bl02.bmc.com:4873"
+  },
   "repository": {
     "type": "git",
     "url": "git@github.com:kaiqigong/gulp-cdnify.git"
