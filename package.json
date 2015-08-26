@@ -1,10 +1,13 @@
 {
   "name": "gulp-cdnify",
-  "version": "1.0.2",
+  "version": "1.0.3-pre",
   "description": "Converts local URLs to CDN ones.",
   "main": "index.js",
   "scripts": {
     "test": "gulp test"
+  },
+  "publishConfig": {
+    "registry": "http://vl-aus-bsm-bl02.bmc.com:4873"
   },
   "repository": {
     "type": "git",

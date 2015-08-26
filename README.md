@@ -1,10 +1,12 @@
 #gulp cdnify
 
 ## install
+```bash
 npm install gulp-cdnify --save-dev
+```
 
 ## Usage
-
+```javascript
     gulp.task('cdnify', function () {
     
       var cdnify = require('gulp-cdnify');
@@ -17,9 +19,10 @@ npm install gulp-cdnify --save-dev
         }))
         .pipe(gulp.dest('dist/'))
     });
+```
 
 ### For those who want to rewrite the url with their own specific rules.
-```
+```javascript
 pipe($.cdnify({
   rewriter: function(url, process) {
     if (/eot]ttf|woff|woff2/.test(url)) {
@@ -31,4 +34,25 @@ pipe($.cdnify({
     }
   }
 }));
+```
+
+### If you want to read custom source (Eg. favicon)
+```javascript
+pipe($.cdnify({
+  html: {
+    'link[rel="shortcut icon"]': 'href',
+    'link[rel="apple-touch-icon-precomposed"]': 'href'
+  }
+}));
+```
+
+### Default sources:
+```javascript
+sources = {
+  'img[src]': 'src',
+  'link[rel=stylesheet]': 'href',
+  'script[src]': 'src',
+  'video[poster]': 'poster',
+  'source[src]': 'src'
+}
 ```
