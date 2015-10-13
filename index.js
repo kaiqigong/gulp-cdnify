@@ -52,7 +52,7 @@ function extend(target, source) {
       target[prop] = extend(target[prop], source[prop]);
     } else {
       // overwrite only if undefined
-      if (typeof target[prop] === 'undefine') target[prop] = source[prop];
+      if (typeof target[prop] === 'undefined') target[prop] = source[prop];
     }
   }
   return target;
