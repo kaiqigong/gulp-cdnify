@@ -1,6 +1,6 @@
 {
   "name": "gulp-cdnify",
-  "version": "1.0.3-pre",
+  "version": "1.0.4",
   "description": "Converts local URLs to CDN ones.",
   "main": "index.js",
   "scripts": {
