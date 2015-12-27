@@ -5,7 +5,7 @@ gulp.task('cdnify', function () {
   var cdnify = require('../index');
 
   return gulp.src([
-    '*.{css,html}'
+    'index.html'
     ])
   .pipe(cdnify({
     base: 'http://pathto/your/cdn/',
@@ -17,6 +17,19 @@ gulp.task('cdnify', function () {
         return process(url);
       }
     }
+  }))
+  .pipe(gulp.dest('dist/'));
+});
+
+gulp.task('issue12', function () {
+
+  var cdnify = require('../index');
+
+  return gulp.src([
+    'issue-12.html'
+    ])
+  .pipe(cdnify({
+    base: 'http://my.cdn.path-cdn.com/',
   }))
   .pipe(gulp.dest('dist/'));
 });
