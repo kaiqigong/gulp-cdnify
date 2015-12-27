@@ -42,7 +42,8 @@ var htmlDefaults = {
   'link[rel=stylesheet]': 'href',
   'script[src]': 'src',
   'video[poster]': 'poster',
-  'source[src]': 'src'
+  'source[src]': 'src',
+  'img[srcset]': 'srcset'
 };
 
 function extend(target, source) {

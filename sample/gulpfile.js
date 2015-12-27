@@ -33,3 +33,17 @@ gulp.task('issue12', function () {
   }))
   .pipe(gulp.dest('dist/'));
 });
+
+gulp.task('issue3', function () {
+
+  var cdnify = require('../index');
+
+  return gulp.src([
+    'issue-3.html'
+    ])
+  .pipe(cdnify({
+    base: 'http://my.cdn.path-cdn.com/',
+  }))
+  .pipe(gulp.dest('dist/'));
+});
+
