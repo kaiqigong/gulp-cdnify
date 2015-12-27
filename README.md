@@ -1,4 +1,5 @@
 #gulp cdnify
+[![NPM version][npm-image]][npm-url] [![Dependency Status][depstat-image]][depstat-url] [![devDependency Status][devDepstat-image]][devDepstat-url]
 
 ## install
 ```bash
@@ -63,3 +64,16 @@ sources = {
 
 ## Change log
 - 27/12/2015 fix issue [3](https://github.com/kaiqigong/gulp-cdnify/issues/3)
+
+## License
+
+Copyright (c) 2014 Kaiqi Gong. Licensed under the MIT license.
+
+[npm-url]: https://npmjs.org/package/gulp-cdnify
+[npm-image]: https://img.shields.io/npm/v/gulp-cdnify.svg?style=flat-square
+
+[depstat-url]: https://david-dm.org/kaiqigong/gulp-cdnify
+[depstat-image]: https://img.shields.io/david/kaiqigong/gulp-cdnify.svg?style=flat-square
+
+[devDepstat-url]: https://david-dm.org/kaiqigong/gulp-cdnify
+[devDepstat-image]: https://img.shields.io/david/dev/kaiqigong/gulp-cdnify.svg?style=flat-square#info=devDependencies
