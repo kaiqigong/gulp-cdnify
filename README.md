@@ -56,3 +56,10 @@ sources = {
   'source[src]': 'src'
 }
 ```
+
+## Roadmap
+- support conditional comment
+- remove dependency of soup
+
+## Change log
+- 27/12/2015 fix issue [3](https://github.com/kaiqigong/gulp-cdnify/issues/3)

@@ -110,8 +110,7 @@ function gulpCdnify(options) {
             newCSS = rewriteCSSURLs(oldCSS, rewriteURL)
         file.contents = new Buffer(newCSS);
         gutil.log("Changed CSS file: \"" + srcFile + "\"");
-      }
-      else {
+      } else {
         // It's an HTML file.
         var oldHTML = String(file.contents),
             soup = new Soup(oldHTML);
