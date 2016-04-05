@@ -126,6 +126,8 @@ function gulpCdnify(options) {
           return rewriteCSSURLs(css, rewriteURL);
         });
 
+        // update inline style
+
         // Write it to disk
         file.contents = new Buffer(soup.toString())
         gutil.log("Changed HTML file: \"" + srcFile + "\"");
