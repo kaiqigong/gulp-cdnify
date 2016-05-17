@@ -7,7 +7,7 @@ var path = require('path'),
     rewriteCSSURLs = require('css-url-rewriter');
 
 // Consts
-const PLUGIN_NAME = 'gulp-cdnify';
+var PLUGIN_NAME = 'gulp-cdnify';
 
 function isLocalPath(filePath, mustBeRelative) {
   return (
@@ -110,25 +110,37 @@ function gulpCdnify(options) {
             newCSS = rewriteCSSURLs(oldCSS, rewriteURL)
         file.contents = new Buffer(newCSS);
         gutil.log("Changed CSS file: \"" + srcFile + "\"");
-      }
-      else {
-        // It's an HTML file.
-        var oldHTML = String(file.contents),
-            soup = new Soup(oldHTML);
-
-        for (var search in options.html) {
-          var attr = options.html[search];
-          if (attr) soup.setAttribute(search, options.html[search], rewriteURL);
+      } else {
+        if (/\.js$/.test(srcFile)) {
+          //
+          gutil.log("JS file not fully supported yet: \"" + srcFile + "\"");
         }
+        try {
+          var oldHTML = String(file.contents),
+              soup = new Soup(oldHTML);
 
-        // Update the URLs in any embedded stylesheets
-        soup.setInnerHTML('style', function (css) {
-          return rewriteCSSURLs(css, rewriteURL);
-        });
+          for (var search in options.html) {
+            var attr = options.html[search];
+            if (attr) soup.setAttribute(search, options.html[search], rewriteURL);
+          }
 
-        // Write it to disk
-        file.contents = new Buffer(soup.toString())
-        gutil.log("Changed HTML file: \"" + srcFile + "\"");
+          // Update the URLs in any embedded stylesheets
+          soup.setInnerHTML('style', function (css) {
+            return rewriteCSSURLs(css, rewriteURL);
+          });
+
+          // Update inline url
+          soup.setAttribute('[style]', 'style', function (css) {
+            return rewriteCSSURLs(css, rewriteURL);
+          });
+
+          // Write it to disk
+          file.contents = new Buffer(soup.toString())
+          gutil.log("Changed none-css file: \"" + srcFile + "\"");
+        } catch(e) {
+          console.log(e);
+          gutil.log("File not changed: \"" + srcFile + "\"");
+        }
       }
     }
     if (file.isStream()) {
