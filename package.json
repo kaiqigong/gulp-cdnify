@@ -28,5 +28,8 @@
   },
   "devDependencies": {
     "gulp": "^3.9.0"
-  }
+  },
+  "files": [
+    "index.js"
+  ]
 }
