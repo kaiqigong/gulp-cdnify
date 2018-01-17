@@ -1,10 +1,10 @@
+var path = require('path');
 // through2 is a thin wrapper around node transform streams
 var through = require('through2');
-var gutil = require('gulp-util');
-var PluginError = gutil.PluginError;
-var path = require('path'),
-    Soup = require('soup'),
-    rewriteCSSURLs = require('css-url-rewriter');
+var log = require('fancy-log');
+var PluginError = require('plugin-error');
+var Soup = require('soup');
+var rewriteCSSURLs = require('css-url-rewriter');
 
 // Consts
 var PLUGIN_NAME = 'gulp-cdnify';
@@ -109,11 +109,10 @@ function gulpCdnify(options) {
         var oldCSS = String(file.contents),
             newCSS = rewriteCSSURLs(oldCSS, rewriteURL)
         file.contents = new Buffer(newCSS);
-        gutil.log("Changed CSS file: \"" + srcFile + "\"");
+        log.info("Changed CSS file: \"" + srcFile + "\"");
       } else {
         if (/\.js$/.test(srcFile)) {
-          //
-          gutil.log("JS file not fully supported yet: \"" + srcFile + "\"");
+          log.warn("JS file not fully supported yet: \"" + srcFile + "\"");
         }
         try {
           var oldHTML = String(file.contents),
@@ -136,10 +135,10 @@ function gulpCdnify(options) {
 
           // Write it to disk
           file.contents = new Buffer(soup.toString())
-          gutil.log("Changed none-css file: \"" + srcFile + "\"");
+          log.info("Changed none-css file: \"" + srcFile + "\"");
         } catch(e) {
           console.log(e);
-          gutil.log("File not changed: \"" + srcFile + "\"");
+          log.warn("File not changed: \"" + srcFile + "\"");
         }
       }
     }
