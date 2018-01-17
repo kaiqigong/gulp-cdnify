@@ -14,8 +14,9 @@ var PLUGIN_NAME = 'gulp-cdnify';
 function isLocalPath(filePath) {
   return typeof filePath === 'string' &&
     filePath.length &&
-    filePath.indexOf('//') === -1 &&
-    filePath.indexOf('data:') !== 0;
+    !filePath.startsWith('http') &&
+    !filePath.startsWith('//') &&
+    !filePath.startsWith('data:');
 }
 
 // Default options
