@@ -1,6 +1,6 @@
 'use strict';
 
-var path = require('path');
+var url = require('url');
 // through2 is a thin wrapper around node transform streams
 var through = require('through2');
 var log = require('fancy-log');
@@ -11,31 +11,11 @@ var rewriteCSSURLs = require('css-url-rewriter');
 // Consts
 var PLUGIN_NAME = 'gulp-cdnify';
 
-function isLocalPath(filePath, mustBeRelative) {
-  return (
-    typeof filePath === 'string' && filePath.length &&
+function isLocalPath(filePath) {
+  return typeof filePath === 'string' &&
+    filePath.length &&
     filePath.indexOf('//') === -1 &&
-    filePath.indexOf('data:') !== 0 &&
-    (!mustBeRelative || filePath[0] !== '/')
-  );
-}
-
-function joinBaseAndPath(base, urlPath) {
-  if (base.indexOf('//') === -1) {
-    return base + urlPath;
-  }
-
-  // Split out protocol first, to avoid '//' getting normalized to '/'
-  var bits = base.split('//');
-  var protocol = bits[0];
-  var rest = bits[1];
-  // Trim any path off if this is a domain-relative URL
-
-  if (urlPath[0] === '/') {
-    rest = rest.split('/')[0];
-  }
-  // Join it all together
-  return protocol + '//' + path.posix.normalize(String(rest) + '/' + urlPath);
+    filePath.indexOf('data:') !== 0;
 }
 
 // Default options
@@ -45,12 +25,15 @@ var defaults = {
 };
 
 var htmlDefaults = {
+  'img[data-src]': 'data-src',
   'img[src]': 'src',
-  'link[rel=stylesheet]': 'href',
+  'link[rel="apple-touch-icon"]': 'href',
+  'link[rel="icon"]': 'href',
+  'link[rel="shortcut icon"]': 'href',
+  'link[rel="stylesheet"]': 'href',
   'script[src]': 'src',
-  'video[poster]': 'poster',
   'source[src]': 'src',
-  'img[srcset]': 'srcset'
+  'video[poster]': 'poster'
 };
 
 function extend(target, source) {
@@ -81,27 +64,24 @@ function gulpCdnify(options) {
     options.html = htmlDefaults;
   } else if (typeof options.html === 'object') {
     for (var key in htmlDefaults) {
-      if (htmlDefaults.hasOwnProperty(key) && options.html[key] === null) {
-        options.html[key] = htmlDefaults[key];
+      if (htmlDefaults.hasOwnProperty(key)) {
+        if (typeof options.html[key] === 'undefined') {
+          options.html[key] = htmlDefaults[key];
+        }
       }
     }
   }
 
   // Establish the rewriteURL function for this task
-  var rewriteURL;
-  var defaultRewrite = function (url) {
-    if (isLocalPath(url)) {
-      return joinBaseAndPath(options.base, url);
-    }
-    return url;
-  };
+  var rewriteURL = options.rewriter;
+  var base = options.base;
 
-  if (typeof options.rewriter === 'function') {
-    rewriteURL = function (url) {
-      return options.rewriter(url, defaultRewrite);
+  if (typeof base === 'string') {
+    rewriteURL = function (origUrl) {
+      return isLocalPath(origUrl) ? url.resolve(base, origUrl) : origUrl;
     };
-  } else {
-    rewriteURL = defaultRewrite;
+  } else if (typeof rewriteURL !== 'function') {
+    throw new PluginError(PLUGIN_NAME, 'Please specify either a `base` string or a `rewriter` function in the task options.');
   }
 
   // Creating a stream through which each file will pass
@@ -134,7 +114,7 @@ function gulpCdnify(options) {
               var attr = options.html[search];
 
               if (attr) {
-                soup.setAttribute(search, options.html[search], rewriteURL);
+                soup.setAttribute(search, attr, rewriteURL);
               }
             }
           }

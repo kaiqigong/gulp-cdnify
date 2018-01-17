@@ -50,10 +50,14 @@ pipe($.cdnify({
 ### Default sources:
 ```javascript
 sources = {
+  'img[data-src]': 'data-src',
   'img[src]': 'src',
-  'link[rel=stylesheet]': 'href',
+  'link[rel="apple-touch-icon"]': 'href',
+  'link[rel="icon"]': 'href',
+  'link[rel="shortcut icon"]': 'href',
+  'link[rel="stylesheet"]': 'href',
   'script[src]': 'src',
-  'video[poster]': 'poster',
-  'source[src]': 'src'
+  'source[src]': 'src',
+  'video[poster]': 'poster'
 }
 ```
