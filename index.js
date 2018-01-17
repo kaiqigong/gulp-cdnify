@@ -1,3 +1,5 @@
+'use strict';
+
 var path = require('path');
 // through2 is a thin wrapper around node transform streams
 var through = require('through2');
@@ -12,23 +14,28 @@ var PLUGIN_NAME = 'gulp-cdnify';
 function isLocalPath(filePath, mustBeRelative) {
   return (
     typeof filePath === 'string' && filePath.length &&
-    (filePath.indexOf('//') === -1) &&
-    (filePath.indexOf('data:') !== 0) &&
+    filePath.indexOf('//') === -1 &&
+    filePath.indexOf('data:') !== 0 &&
     (!mustBeRelative || filePath[0] !== '/')
   );
 }
 
 function joinBaseAndPath(base, urlPath) {
-  if (base.indexOf('//') === -1) return base + urlPath;
+  if (base.indexOf('//') === -1) {
+    return base + urlPath;
+  }
 
   // Split out protocol first, to avoid '//' getting normalized to '/'
-  var bits = base.split('//'),
-      protocol = bits[0], rest = bits[1];
+  var bits = base.split('//');
+  var protocol = bits[0];
+  var rest = bits[1];
   // Trim any path off if this is a domain-relative URL
-  if (urlPath[0] === '/')
+
+  if (urlPath[0] === '/') {
     rest = rest.split('/')[0];
+  }
   // Join it all together
-  return protocol + '//' + path.posix.normalize("" + rest + "/" + urlPath);
+  return protocol + '//' + path.posix.normalize(String(rest) + '/' + urlPath);
 }
 
 // Default options
@@ -51,9 +58,9 @@ function extend(target, source) {
   for (var prop in source) {
     if (typeof source[prop] === 'object') {
       target[prop] = extend(target[prop], source[prop]);
-    } else {
-      // overwrite only if undefined
-      if (typeof target[prop] === 'undefined') target[prop] = source[prop];
+    // overwrite only if undefined
+    } else if (typeof target[prop] === 'undefined') {
+      target[prop] = source[prop];
     }
   }
   return target;
@@ -61,7 +68,6 @@ function extend(target, source) {
 
 // Plugin level function(dealing with files)
 function gulpCdnify(options) {
-
   if (!options) {
     throw new PluginError(PLUGIN_NAME, 'Missing options');
   }
@@ -69,11 +75,13 @@ function gulpCdnify(options) {
   options = extend(options, defaults);
 
   // Handle HTML selector:attribute settings
-  if (options.html === false) options.html = {};
-  else if (options.html === true) options.html = htmlDefaults;
-  else if (typeof options.html === 'object') {
+  if (options.html === false) {
+    options.html = {};
+  } else if (options.html === true) {
+    options.html = htmlDefaults;
+  } else if (typeof options.html === 'object') {
     for (var key in htmlDefaults) {
-      if (htmlDefaults.hasOwnProperty(key) && options.html[key] == null) {
+      if (htmlDefaults.hasOwnProperty(key) && options.html[key] === null) {
         options.html[key] = htmlDefaults[key];
       }
     }
@@ -82,45 +90,53 @@ function gulpCdnify(options) {
   // Establish the rewriteURL function for this task
   var rewriteURL;
   var defaultRewrite = function (url) {
-    if (isLocalPath(url))
+    if (isLocalPath(url)) {
       return joinBaseAndPath(options.base, url);
+    }
     return url;
   };
-  if (typeof options.rewriter !== 'function') {
-    rewriteURL = defaultRewrite;
-  }
-  else {
+
+  if (typeof options.rewriter === 'function') {
     rewriteURL = function (url) {
       return options.rewriter(url, defaultRewrite);
-    }
+    };
+  } else {
+    rewriteURL = defaultRewrite;
   }
 
   // Creating a stream through which each file will pass
   return through.obj(function(file, enc, cb) {
 
-    var srcFile = file.path
+    var srcFile = file.path;
+
     if (file.isNull()) {
       // return empty file
-      cb(null, file);
+      return cb(null, file);
     }
     if (file.isBuffer()) {
       if (/\.css$/.test(srcFile)) {
         // It's a CSS file.
-        var oldCSS = String(file.contents),
-            newCSS = rewriteCSSURLs(oldCSS, rewriteURL)
+        var oldCSS = String(file.contents);
+        var newCSS = rewriteCSSURLs(oldCSS, rewriteURL);
+
         file.contents = new Buffer(newCSS);
-        log.info("Changed CSS file: \"" + srcFile + "\"");
+        log.info('Changed CSS file: "' + srcFile + '"');
       } else {
         if (/\.js$/.test(srcFile)) {
-          log.warn("JS file not fully supported yet: \"" + srcFile + "\"");
+          log.warn('JS file not fully supported yet: "' + srcFile + '"');
         }
         try {
-          var oldHTML = String(file.contents),
-              soup = new Soup(oldHTML);
+          var oldHTML = String(file.contents);
+          var soup = new Soup(oldHTML);
 
           for (var search in options.html) {
-            var attr = options.html[search];
-            if (attr) soup.setAttribute(search, options.html[search], rewriteURL);
+            if (options.html.hasOwnProperty(search)) {
+              var attr = options.html[search];
+
+              if (attr) {
+                soup.setAttribute(search, options.html[search], rewriteURL);
+              }
+            }
           }
 
           // Update the URLs in any embedded stylesheets
@@ -134,21 +150,21 @@ function gulpCdnify(options) {
           });
 
           // Write it to disk
-          file.contents = new Buffer(soup.toString())
-          log.info("Changed non-css file: \"" + srcFile + "\"");
-        } catch(e) {
+          file.contents = new Buffer(soup.toString());
+          log.info('Changed non-css file: "' + srcFile + '"');
+        } catch (e) {
           console.log(e);
-          log.warn("File not changed: \"" + srcFile + "\"");
+          log.warn('File not changed: "' + srcFile + '"');
         }
       }
     }
     if (file.isStream()) {
       throw new PluginError(PLUGIN_NAME, 'Stream not supported');
     }
-    cb(null, file);
+    return cb(null, file);
   });
 
-};
+}
 
 // Exporting the plugin main function
 module.exports = gulpCdnify;
