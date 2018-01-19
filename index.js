@@ -98,7 +98,9 @@ function gulpCdnify(options) {
       if (/\.css$/.test(srcFile)) {
         // It's a CSS file.
         var oldCSS = String(file.contents);
-        var newCSS = rewriteCSSURLs(oldCSS, rewriteURL);
+        var newCSS = options.css ?
+          rewriteCSSURLs(oldCSS, rewriteURL) :
+          oldCSS;
 
         file.contents = new Buffer(newCSS);
         log.info('Changed CSS file: "' + srcFile + '"');
@@ -121,14 +123,16 @@ function gulpCdnify(options) {
           }
 
           // Update the URLs in any embedded stylesheets
-          soup.setInnerHTML('style', function (css) {
-            return rewriteCSSURLs(css, rewriteURL);
-          });
+          if (options.css) {
+              soup.setInnerHTML('style', function (css) {
+                return rewriteCSSURLs(css, rewriteURL);
+              });
 
-          // Update inline url
-          soup.setAttribute('[style]', 'style', function (css) {
-            return rewriteCSSURLs(css, rewriteURL);
-          });
+              // Update inline url
+              soup.setAttribute('[style]', 'style', function (css) {
+                return rewriteCSSURLs(css, rewriteURL);
+              });
+          }
 
           // Write it to disk
           file.contents = new Buffer(soup.toString());
