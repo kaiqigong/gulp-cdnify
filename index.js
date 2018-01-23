@@ -135,7 +135,7 @@ function gulpCdnify(options) {
 
           // Write it to disk
           file.contents = new Buffer(soup.toString())
-          log.info("Changed none-css file: \"" + srcFile + "\"");
+          log.info("Changed non-css file: \"" + srcFile + "\"");
         } catch(e) {
           console.log(e);
           log.warn("File not changed: \"" + srcFile + "\"");
