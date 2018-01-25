@@ -1,4 +1,5 @@
-#gulp cdnify
+# gulp cdnify
+The gulp version of [grunt-cdnify](https://github.com/callumlocke/grunt-cdnify)
 
 ## install
 ```bash
